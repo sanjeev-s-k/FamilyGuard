@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRPF Intranet Authentication Portal — Central SSO</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: radial-gradient(circle at center, #111827 0%, #080b11 100%);
+    }
+
+    .crpf-card {
+      background: rgba(16, 22, 36, 0.95);
+      border: 1px solid var(--border-glow);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 25px rgba(6, 182, 212, 0.15);
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+    }
+
+    .crpf-header {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      border-bottom: 2px solid #0284c7;
+      padding: 1.25rem 1.5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .crpf-emblem {
+      font-size: 2.2rem;
+      margin-bottom: 0.3rem;
+      filter: drop-shadow(0 0 10px rgba(14, 165, 233, 0.5));
+    }
+
+    .crpf-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .crpf-subtitle {
+      font-size: 0.72rem;
+      color: #38bdf8;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-top: 0.2rem;
+    }
+
+    .login-body {
+      padding: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 0.35rem;
+    }
+
+    .preset-selector-bar {
+      background: rgba(10, 13, 20, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .preset-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #f59e0b;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .preset-btns-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+    }
+
+    .btn-preset {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      color: #e2e8f0;
+      padding: 0.35rem 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+
+    .btn-preset:hover {
+      background: rgba(6, 182, 212, 0.15);
+      border-color: #06b6d4;
+      color: #fff;
+    }
+
+    .btn-preset.attack {
+      border-color: rgba(239, 68, 68, 0.4);
+      background: rgba(239, 68, 68, 0.1);
+      color: #fca5a5;
+    }
+
+    .btn-preset.attack:hover {
+      background: rgba(239, 68, 68, 0.25);
+    }
+
+    .auth-feedback-box {
+      margin-top: 1.25rem;
+      padding: 1rem;
+      border-radius: 8px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .auth-feedback-box.SUCCESS {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid #10b981;
+      color: #34d399;
+    }
+
+    .auth-feedback-box.FAILED {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid #ef4444;
+      color: #f87171;
+    }
+
+    .auth-feedback-box.BLOCKED {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid #f59e0b;
+      color: #fbbf24;
+    }
+
+    .security-notice {
+      font-size: 0.68rem;
+      color: #64748b;
+      text-align: center;
+      margin-top: 1rem;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-wrapper">
+    <div class="crpf-card">
+      <!-- CRPF Official Header -->
+      <div class="crpf-header">
+        <div class="crpf-emblem">🇮🇳 🛡️</div>
+        <div class="crpf-title">Central Reserve Police Force</div>
+        <div class="crpf-subtitle">Enterprise Intranet Single Sign-On (SSO) Portal</div>
+      </div>
+
+      <div class="login-body">
+        <!-- Quick Intrusion Test Scenarios & Preset Accounts -->
+        <div class="preset-selector-bar">
+          <div class="preset-title">
+            <span>⚡ Interactive Test Case Quick-Launcher:</span>
+          </div>
+          <div class="preset-btns-grid">
+            <button type="button" class="btn-preset" onclick="loadCase('LEGIT_VIKRAM')">
+              🟢 Case 1: Legitimate (Maj Vikram @ North)
+            </button>
+            <button type="button" class="btn-preset" onclick="loadCase('WRONG_PWD_TYPO')">
+              🟡 Case 2: Typo (1 Wrong Password)
+            </button>
+            <button type="button" class="btn-preset attack" onclick="loadCase('ATTACK_CROSS_ACCOUNT')">
+              🚨 Case 3: Intruder Attack (South ➔ Vikram's Acc)
+            </button>
+            <button type="button" class="btn-preset" onclick="loadCase('LEGIT_PRIYA')">
+              🟢 Case 4: Inspector Priya @ South Hub
+            </button>
+          </div>
+        </div>
+
+        <!-- Login Form -->
+        <form id="crpfLoginForm" onsubmit="handleLoginSubmit(event)">
+          <div class="form-group">
+            <label class="form-label" for="loginIdentifier">Force Number / Personnel User ID:</label>
+            <input type="text" id="loginIdentifier" class="input-search" value="CRPF-90214" placeholder="e.g. CRPF-90214 or user_u102" required style="width:100%;">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="loginPassword">Classified Authentication Password:</label>
+            <input type="password" id="loginPassword" class="input-search" value="Crpf@Signals2026" placeholder="Enter secure password" required style="width:100%;">
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+            <div class="form-group">
+              <label class="form-label" for="loginLocation">Regional Sector Location:</label>
+              <select id="loginLocation" class="select-filter" style="width:100%;">
+                <option value="North" selected>North HQ (Srinagar/Delhi)</option>
+                <option value="South">South Sector (Hyderabad/BLR)</option>
+                <option value="East">East Sector (Guwahati)</option>
+                <option value="West">West Command (Jodhpur)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="loginDevice">Workstation Device ID:</label>
+              <input type="text" id="loginDevice" class="input-search" value="DEV-WIN-9021" placeholder="e.g. DEV-WIN-9021" required style="width:100%;">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="loginIP">Source IP Address:</label>
+            <input type="text" id="loginIP" class="input-search" value="10.14.2.19" placeholder="10.14.2.19" required style="width:100%;">
+          </div>
+
+          <button type="submit" id="btnLoginSubmit" class="btn-action btn-primary" style="width:100%;padding:0.7rem;font-size:0.88rem;margin-top:0.5rem;">
+            🔐 Authenticate & Verify Personnel Identity
+          </button>
+        </form>
+
+        <!-- Real-time Authentication & Risk Score Feedback Box -->
+        <div id="authFeedbackBox" class="auth-feedback-box">
+          <div id="authFeedbackContent"></div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1.25rem;padding-top:0.75rem;border-top:1px solid rgba(255,255,255,0.08);">
+          <a href="/" style="color:#38bdf8;font-size:0.75rem;text-decoration:none;display:flex;align-items:center;gap:0.3rem;">
+            <span>🛡️</span> Open SOC Threat Intelligence Dashboard ➔
+          </a>
+          <span style="font-size:0.68rem;color:#64748b;font-family:var(--font-mono);">v2.4 CRPF-SEC</span>
+        </div>
+
+        <div class="security-notice">
+          RESTRICTED GOVERNMENT COMPUTER SYSTEM. FOR AUTHORIZED CRPF USE ONLY.<br>
+          ALL AUTHENTICATION ATTEMPTS ARE CRYPTOGRAPHICALLY SIGNED AND MONITORED BY SOC DEFENSE.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Test Case Profiles
+    const TEST_CASES = {
+      LEGIT_VIKRAM: {
+        id: 'CRPF-90214',
+        pwd: 'Crpf@Signals2026',
+        loc: 'North',
+        dev: 'DEV-WIN-9021',
+        ip: '10.14.2.19'
+      },
+      WRONG_PWD_TYPO: {
+        id: 'CRPF-90214',
+        pwd: 'WrongPassword123',
+        loc: 'North',
+        dev: 'DEV-WIN-9021',
+        ip: '10.14.2.19'
+      },
+      ATTACK_CROSS_ACCOUNT: {
+        id: 'CRPF-90214', // Attacker trying to break into Major Vikram's North account
+        pwd: 'HackedSecretPassword99',
+        loc: 'South',    // From unusual location (South)
+        dev: 'DEV-UNKNOWN-88', // Unregistered device
+        ip: '198.51.100.42'   // External/foreign IP
+      },
+      LEGIT_PRIYA: {
+        id: 'CRPF-55120',
+        pwd: 'Priya#Logistics26',
+        loc: 'South',
+        dev: 'DEV-LAP-5512',
+        ip: '10.22.4.11'
+      }
+    };
+
+    function loadCase(caseKey) {
+      const c = TEST_CASES[caseKey];
+      if (!c) return;
+      document.getElementById('loginIdentifier').value = c.id;
+      document.getElementById('loginPassword').value = c.pwd;
+      document.getElementById('loginLocation').value = c.loc;
+      document.getElementById('loginDevice').value = c.dev;
+      document.getElementById('loginIP').value = c.ip;
+      
+      const box = document.getElementById('authFeedbackBox');
+      box.style.display = 'none';
+    }
+
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('btnLoginSubmit');
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Verifying with Threat Intelligence Engine...';
+
+      const payload = {
+        identifier: document.getElementById('loginIdentifier').value,
+        password: document.getElementById('loginPassword').value,
+        location: document.getElementById('loginLocation').value,
+        server_id: document.getElementById('loginLocation').value === 'North' ? 'N-01' : 'S-01',
+        device_id: document.getElementById('loginDevice').value,
+        source_ip: document.getElementById('loginIP').value
+      };
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        const box = document.getElementById('authFeedbackBox');
+        const content = document.getElementById('authFeedbackContent');
+        box.style.display = 'block';
+
+        const risk = data.risk_assessment || {};
+        const score = risk.overall_score || 0;
+        const level = risk.risk_level || 'LOW';
+
+        let boxType = 'FAILED';
+        if (data.authenticated) boxType = 'SUCCESS';
+        else if (data.auth_code === 'ACCOUNT_BLOCKED') boxType = 'BLOCKED';
+
+        box.className = `auth-feedback-box ${boxType}`;
+
+        content.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+            <strong style="font-size:0.88rem;">${data.message}</strong>
+            <span class="badge-risk ${level}">${score}/100 ${level}</span>
+          </div>
+
+          ${data.account ? `
+            <div style="font-size:0.75rem;margin-bottom:0.4rem;color:#cbd5e1;">
+              Personnel: <strong>${data.account.full_name}</strong> (${data.account.rank})<br>
+              Account Status: <strong>${data.account.status}</strong>
+            </div>
+          ` : ''}
+
+          <div style="font-size:0.72rem;background:rgba(0,0,0,0.3);padding:0.5rem;border-radius:6px;margin:0.4rem 0;font-family:var(--font-mono);">
+            <strong>Causal Risk Evaluation:</strong><br>
+            ${(risk.reasons || []).map(r => `• ${r}`).join('<br>') || 'Baseline telemetry consistent.'}
+          </div>
+
+          ${data.notification_dispatched ? `
+            <div style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.5);padding:0.4rem 0.6rem;border-radius:6px;font-size:0.72rem;color:#fca5a5;margin-top:0.4rem;">
+              🚨 <strong>High Priority Security Alert Dispatched</strong> to SOC Security Experts. Expert precautions (e.g. temporary account block) activated.
+            </div>
+          ` : ''}
+
+          <div style="margin-top:0.6rem;text-align:right;">
+            <a href="/" class="btn-action btn-primary" style="font-size:0.7rem;text-decoration:none;display:inline-block;padding:0.3rem 0.6rem;">
+              Inspect Threat in SOC Dashboard ➔
+            </a>
+          </div>
+        `;
+
+      } catch (err) {
+        alert('Authentication failed: ' + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = '🔐 Authenticate & Verify Personnel Identity';
+      }
+    }
+  </script>
+</body>
+</html>

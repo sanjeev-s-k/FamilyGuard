@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRPF Threat Intelligence — IT System Log Analyzer</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top SOC Header -->
+  <header class="soc-header">
+    <div class="header-top">
+      <div class="logo-group">
+        <div class="logo-shield">🛡️</div>
+        <div class="logo-text">
+          <h1>CRPF Centralized IT System Log Analyzer</h1>
+          <div class="subtitle">Cross-Location Threat Correlation & Explainable Risk Assessment Command</div>
+        </div>
+      </div>
+
+      <div class="header-meta">
+        <div class="live-indicator">
+          <span class="pulse-dot"></span>
+          <span>CENTRAL ANALYZER: ONLINE</span>
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);">
+          SOC DEFENSE LEVEL: ALPHA
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Scenario Presets Launcher Bar -->
+    <div class="scenario-bar">
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <span class="scenario-label">⭐ Scenario Quick-Launcher:</span>
+        <div class="scenario-buttons">
+          <button class="btn-scenario btn-sc-a" onclick="app.runScenario('SCENARIO_A')" title="User u102 at North, known device, 2 failed attempts -> success (Low Risk)">
+            🟢 Scenario A (Low)
+          </button>
+          <button class="btn-scenario btn-sc-b" onclick="app.runScenario('SCENARIO_B')" title="User u102 at North, known device, 7 failed attempts -> success (Medium Risk)">
+            🟡 Scenario B (Med)
+          </button>
+          <button class="btn-scenario btn-sc-c" onclick="app.runScenario('SCENARIO_C')" title="North failed logins -> South login from unknown device & unusual location (High Risk)">
+            🟠 Scenario C (High)
+          </button>
+          <button class="btn-scenario btn-sc-d" onclick="app.runScenario('SCENARIO_D')" title="North failed -> South unknown dev login -> East data exfiltration in 12m (Very High Risk)">
+            🔴 Scenario D (Very High)
+          </button>
+        <button class="btn-scenario btn-tamper" onclick="app.runScenario('TAMPER')" title="Simulate payload tampering to test cryptographic HMAC verification">
+            🔐 Tamper Attack
+          </button>
+          <a href="/login.html" target="_blank" class="btn-scenario btn-live-stream" style="text-decoration:none;" title="Open authentic CRPF SSO Login Portal in new tab">
+            🇮🇳 CRPF Login Portal ↗
+          </a>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:0.4rem;">
+        <button id="btnLiveStream" class="btn-scenario btn-live-stream" onclick="app.toggleLiveStream()" title="Stream simulated continuous background telemetry">
+          📡 Live Feed
+        </button>
+        <button class="btn-scenario btn-reset" onclick="app.resetSystem()" title="Clear telemetry and reset baseline">
+          🔄 Reset
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- SOC Navigation Bar -->
+  <nav class="soc-nav">
+    <div class="nav-tab active" data-tab="overview">
+      <span>🌐</span> Overview & Threat Map
+    </div>
+    <div class="nav-tab" data-tab="correlation">
+      <span>⭐</span> Cross-Location Correlation 
+      <span id="navIncidentBadge" class="badge-count">0</span>
+    </div>
+    <div class="nav-tab" data-tab="accounts">
+      <span>👥</span> Personnel & Expert Precautions
+      <span id="navNotifBadge" class="badge-count" style="background:rgba(239,68,68,0.2);color:#f87171;border-color:rgba(239,68,68,0.4);">0</span>
+    </div>
+    <div class="nav-tab" data-tab="logs">
+      <span>🔍</span> Live Log Explorer
+    </div>
+    <div class="nav-tab" data-tab="tamper-lab">
+      <span>🔐</span> Log Tamper Lab
+      <span id="navTamperBadge" class="badge-count" style="background:rgba(168,85,247,0.2);color:#c084fc;border-color:rgba(168,85,247,0.4);">0</span>
+    </div>
+    <div class="nav-tab" data-tab="agents">
+      <span>📡</span> Local Agents & Offline Sync
+    </div>
+    <div class="nav-tab" data-tab="ml">
+      <span>🧠</span> Supervised ML Inspector
+    </div>
+  </nav>
+
+  <!-- Main Content Container -->
+  <main class="soc-container">
+
+    <!-- TAB 1: Overview & Threat Map -->
+    <section id="tab-overview" class="tab-pane active">
+      <!-- KPI Metric Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:rgba(6,182,212,0.15);color:#38bdf8;">📥</div>
+          <div class="kpi-info">
+            <div id="kpiTotalEvents" class="kpi-value">0</div>
+            <div class="kpi-label">Total Logs Ingested</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:rgba(99,102,241,0.15);color:#818cf8;">⭐</div>
+          <div class="kpi-info">
+            <div id="kpiTotalIncidents" class="kpi-value">0</div>
+            <div class="kpi-label">Correlated Incidents</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:rgba(239,68,68,0.15);color:#f87171;">🚨</div>
+          <div class="kpi-info">
+            <div id="kpiHighAlerts" class="kpi-value">0</div>
+            <div class="kpi-label">High / Critical Alerts</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:rgba(168,85,247,0.15);color:#c084fc;">🔐</div>
+          <div class="kpi-info">
+            <div id="kpiTamperedLogs" class="kpi-value">0</div>
+            <div class="kpi-label">Tamper Discrepancies</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:rgba(245,158,11,0.15);color:#fbbf24;">📦</div>
+          <div class="kpi-info">
+            <div id="kpiPendingSync" class="kpi-value">0</div>
+            <div class="kpi-label">Pending Offline Syncs</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Threat Map Panel -->
+      <div class="map-panel">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">📍 Multi-Location Organizational Deployment Telemetry</h3>
+            <span style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);">Real-Time Sensor Map</span>
+          </div>
+          <div id="geoMapContainer" class="geo-map-container">
+            <!-- Rendered by GeoMapComponent -->
+          </div>
+        </div>
+
+        <!-- Incident Ticker / Quick Overview -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">🚨 Active Incidents Stream</h3>
+            <button class="btn-scenario btn-tamper" onclick="app.switchTab('correlation')">View All →</button>
+          </div>
+          <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.75rem;">
+            Events correlated across North, South, East, and West regional networks.
+          </p>
+          <div id="overviewIncidentsPreview" class="incident-list" style="max-height:330px;">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: ⭐ Cross-Location Threat Correlation (CORE VIEW) -->
+    <section id="tab-correlation" class="tab-pane">
+      <div class="incident-layout">
+        <!-- Left Side: Incidents Selector -->
+        <div class="card" style="padding:1rem;">
+          <div class="card-header">
+            <h3 class="card-title">⭐ Correlated Incident Feeds</h3>
+            <span style="font-size:0.72rem;color:#38bdf8;font-family:var(--font-mono);">Ranked by Risk</span>
+          </div>
+          <div id="incidentsListContainer" class="incident-list">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Right Side: Deep-Dive Panel -->
+        <div>
+          <!-- Explainable Risk Assessment & Factor Breakdown -->
+          <div id="riskGaugeContainer">
+            <!-- Rendered by RiskGaugeComponent -->
+          </div>
+
+          <!-- Interactive Attack Graph -->
+          <div class="card" style="margin-bottom:1.25rem;">
+            <div class="card-header">
+              <h3 class="card-title">🕸️ Interactive Attack & Entity Relationship Graph</h3>
+              <div class="graph-controls">
+                <button class="btn-graph-ctrl" onclick="app.attackGraph.zoomIn()" title="Zoom In">+</button>
+                <button class="btn-graph-ctrl" onclick="app.attackGraph.zoomOut()" title="Zoom Out">-</button>
+                <button class="btn-graph-ctrl" onclick="app.attackGraph.resetView()" title="Reset View">⟲</button>
+              </div>
+            </div>
+            <p style="font-size:0.75rem;color:#94a3b8;margin-bottom:0.6rem;">
+              Graph links: <strong>User Identity ➔ Registered Devices ➔ Regional Locations ➔ Servers ➔ Targeted Resources</strong>. Drag nodes or scroll to zoom.
+            </p>
+            <div class="graph-canvas-container">
+              <canvas id="attackGraphCanvas"></canvas>
+            </div>
+          </div>
+
+          <!-- Chronological Multi-Location Attack Timeline -->
+          <div class="card" style="margin-bottom:1.25rem;">
+            <div class="card-header">
+              <h3 class="card-title">⏱️ Cross-Location Attack Timeline</h3>
+              <span id="selectedIncidentStatus" style="font-size:0.75rem;color:#94a3b8;font-family:var(--font-mono);">Status: OPEN</span>
+            </div>
+            <p style="font-size:0.75rem;color:#94a3b8;margin-bottom:0.5rem;">
+              Chronological forensic timeline linking activity across distributed regional data centers.
+            </p>
+            <div id="timelineContainer">
+              <!-- Rendered by TimelineComponent -->
+            </div>
+
+            <!-- Incident Actions -->
+            <div style="display:flex;gap:0.5rem;margin-top:1.25rem;border-top:1px solid rgba(255,255,255,0.08);padding-top:1rem;flex-wrap:wrap;">
+              <button class="btn-action btn-primary" onclick="app.updateIncidentStatus('INVESTIGATING')">
+                🔍 Mark as Under Investigation
+              </button>
+              <button class="btn-action btn-danger" onclick="app.updateIncidentStatus('CONTAINED')">
+                🛡️ Isolate Endpoints / Contain Attack
+              </button>
+              <button class="btn-action btn-success" onclick="app.updateIncidentStatus('RESOLVED')">
+                ✅ Resolve Incident
+              </button>
+              <button class="btn-action btn-scenario btn-reset" onclick="app.updateIncidentStatus('FALSE_POSITIVE')">
+                ⚪ Mark False Positive
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: 👥 CRPF Personnel & Expert Precautions -->
+    <section id="tab-accounts" class="tab-pane">
+      <div id="accountsPanelContainer">
+        <!-- Rendered by AccountsPanelComponent -->
+      </div>
+    </section>
+
+    <!-- TAB 3: Live Log Explorer -->
+    <section id="tab-logs" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">🔍 Centralized Log Stream Explorer</h3>
+          <span style="font-size:0.75rem;color:#94a3b8;font-family:var(--font-mono);">Unified Normalized Telemetry</span>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="filter-bar">
+          <input type="text" id="logSearchInput" class="input-search" placeholder="Search by user, IP, server, event type, or keyword...">
+          
+          <select id="logLocationFilter" class="select-filter">
+            <option value="">All Locations</option>
+            <option value="North">North Sector</option>
+            <option value="South">South Sector</option>
+            <option value="East">East Sector</option>
+            <option value="West">West Command</option>
+          </select>
+
+          <select id="logTypeFilter" class="select-filter">
+            <option value="">All Event Types</option>
+            <option value="FAILED_LOGIN">FAILED_LOGIN</option>
+            <option value="SUCCESSFUL_LOGIN">SUCCESSFUL_LOGIN</option>
+            <option value="SUSPICIOUS_FILE_ACCESS">SUSPICIOUS_FILE_ACCESS</option>
+            <option value="PRIVILEGE_ESCALATION">PRIVILEGE_ESCALATION</option>
+            <option value="DATA_EXFILTRATION">DATA_EXFILTRATION</option>
+          </select>
+
+          <select id="logIntegrityFilter" class="select-filter">
+            <option value="">All Integrity States</option>
+            <option value="VERIFIED">VERIFIED Only</option>
+            <option value="TAMPERED">TAMPERED Only</option>
+          </select>
+        </div>
+
+        <!-- Log Table -->
+        <div id="logTableContainer">
+          <!-- Rendered by LogTableComponent -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: 🔐 Log Integrity & Tamper Lab -->
+    <section id="tab-tamper-lab" class="tab-pane">
+      <div id="tamperLabContainer">
+        <!-- Rendered by TamperLabComponent -->
+      </div>
+    </section>
+
+    <!-- TAB 5: 📡 Local Agents & Offline Sync -->
+    <section id="tab-agents" class="tab-pane">
+      <div id="agentPanelContainer">
+        <!-- Rendered by AgentPanelComponent -->
+      </div>
+    </section>
+
+    <!-- TAB 6: 🧠 Supervised ML Inspector -->
+    <section id="tab-ml" class="tab-pane">
+      <div id="mlPanelContainer">
+        <!-- Rendered by MLPanelComponent -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Event Detail & Raw Log Modal -->
+  <div id="eventDetailModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-size:1rem;color:#fff;display:flex;align-items:center;gap:0.4rem;">
+          📄 Log Forensic Payload Inspection
+        </h3>
+        <button class="modal-close-btn" onclick="app.closeModal()">✕</button>
+      </div>
+      <div id="eventModalBody">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Script Includes -->
+  <script src="/js/components/geo_map.js"></script>
+  <script src="/js/components/attack_graph.js"></script>
+  <script src="/js/components/timeline.js"></script>
+  <script src="/js/components/risk_gauge.js"></script>
+  <script src="/js/components/log_table.js"></script>
+  <script src="/js/components/tamper_lab.js"></script>
+  <script src="/js/components/agent_panel.js"></script>
+  <script src="/js/components/ml_panel.js"></script>
+  <script src="/js/components/accounts_panel.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

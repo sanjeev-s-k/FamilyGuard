@@ -1,0 +1,19 @@
+# FamilyGuard – AI-Powered Parental Payment Monitoring System
+# Backend Python Dependencies
+
+fastapi>=0.100.0
+uvicorn>=0.22.0
+sqlalchemy>=2.0.0
+pydantic>=2.0.0
+email-validator>=2.0.0
+python-dotenv>=1.0.0
+httpx>=0.25.0
+passlib>=1.7.4
+bcrypt>=4.0.0
+pyjwt>=2.8.0
+cryptography>=41.0.0
+reportlab>=3.6.0,<4.0.0
+python-multipart>=0.0.6
+
+# Optional for PostgreSQL production deployments:
+# psycopg2-binary>=2.9.0
