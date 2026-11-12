@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # FamilyGuard – AI-Powered Parental Payment Monitoring System
 
 > **Tagline:** *“Smart spending for children. Intelligent protection for parents.”*
@@ -229,3 +230,7 @@ All 9 integration tests cover:
 
 ## 📄 License
 FamilyGuard is open-source software released under the [MIT License](LICENSE).
+=======
+# FamilyGuard
+an special system run over paypal to let parents create an wallet for childern and moniter theor activities
+>>>>>>> 1fc5b0ece6f12818f927a0f866db8c2ffc9e54eb
